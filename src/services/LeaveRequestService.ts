@@ -1,0 +1,84 @@
+import { v4 as uuidv4 } from "uuid";
+import { LeaveRequestRepository } from "../repositories/LeaveRequestRepository";
+import { AppError } from "../utils/errors";
+import { CreateLeaveRequestInput } from "../validations/schemas";
+import { EmployeeService } from "./EmployeeService";
+import { QueueService } from "./QueueService";
+
+
+export class LeaveRequestServices {
+    private leaveRequestRepository: LeaveRequestRepository;
+    private employeeService: EmployeeService;
+    private queueService: QueueService;
+
+    constructor(){
+        this.leaveRequestRepository = new LeaveRequestRepository();
+        this.employeeService = new EmployeeService();
+        this.queueService = new QueueService();
+    }
+
+    async createLeaveRequest(input: CreateLeaveRequestInput) {
+        if(input.idempotencyKey){
+            const existingRequest = await this.leaveRequestRepository.findByIdempotencyKey(input.idempotencyKey);
+            if(existingRequest){
+                return existingRequest;
+            }
+        }
+
+        // Verify employee exists
+        const employeeExists = await this.employeeService.getEmployeeById(input.employeeId);
+        if(!employeeExists){
+            throw new AppError("Employee not found", 404);
+        }
+
+        if(input.startDate >= input.endDate){
+            throw new AppError("Start date must be before end date", 400);
+        }
+
+        const leaveRequestData = await this.leaveRequestRepository.create({
+            ...input,
+            status: 'PENDING' as const,
+            idempotencykey: input.idempotencyKey || uuidv4(),
+        });
+
+        // Publish to queue for async processing
+        await this.queueService.publishLeaveRequest({
+            id: leaveRequestData.id,
+            employeeId: leaveRequestData.employeeId,
+            startDate: leaveRequestData.startDate,
+            endDate: leaveRequestData.endDate,
+            idempotencyKey: leaveRequestData.idempotencyKey!,
+        })
+
+        return leaveRequestData;
+    }
+
+    async processLeaveRequest(leaveRequestData: {
+        id: string;
+        employeeId: string;
+        startDate: Date;
+        endDate: Date;
+        idempotencyKey: string;
+        retryCount?: number;
+    }){
+        try {
+            // Calculate leave durations in days
+            const durationMs = leaveRequestData.endDate.getTime() - leaveRequestData.startDate.getTime();
+            const durationDays = Math.ceil(durationMs / (1000 * 60 * 60 * 24)) + 1;
+            let status: 'APPROVED' | 'PENDING_APPROVAL' = 'PENDING_APPROVAL';
+            if(durationDays <= 2){
+                status = 'APPROVED'
+            };
+
+            await this.leaveRequestRepository.updateStatus(
+                leaveRequestData.id,
+                status,
+                new Date()
+            )
+        console.log(`Leave request ${leaveRequestData.id} processed with status: ${status}`);
+        } catch (error) {
+            console.error('Error processing leave request:', error);
+            throw error;
+        }
+    }
+}
