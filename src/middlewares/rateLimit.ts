@@ -37,7 +37,7 @@ export const createDepartmentRateLimiter = createLimiter(
 
 export const createLeaveRequestRateLimiter = createLimiter(
     15 * 60 * 1000, // 15 minutes
-    30, // 20 requests per window
+    10, // 10 requests per window
     'Too many leave request attempts, please try again after 15 minutes.'
 )
 

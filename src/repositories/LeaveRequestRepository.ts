@@ -8,7 +8,10 @@ export class LeaveRequestRepository extends BaseRepository<LeaveRequest> {
     }
 
     async findByEmployeeId(employeeId: string): Promise<LeaveRequest[]>{
-        return LeaveRequest.findAll({ where: { employeeId } });
+        return LeaveRequest.findAll({ 
+            where: { employeeId },
+            order: [['createdAt', 'DESC']]
+        });
     }
 
     async findByIdempotencyKey(idempotencyKey: string): Promise<LeaveRequest> {
@@ -29,7 +32,8 @@ export class LeaveRequestRepository extends BaseRepository<LeaveRequest> {
                 model: Employee,
                 as: 'employee',
                 attributes: ['id', 'name', 'email']    
-            }]
+            }],
+            order: [['createdAt', 'DESC']]
         })
     }
 

@@ -22,7 +22,6 @@ export class QueueService {
         try {
             this.connection = await amqp.connect(rabbitMQConfig.url);
             this.channel = await this.connection.createChannel();
-
             
             // Assert main queue with dead-letter exchang
             await this.channel.assertQueue(rabbitMQConfig.queues.leaveRequests, {
@@ -52,11 +51,12 @@ export class QueueService {
         }
 
         try {
+            console.log("Message published to queue: ....", message);
             return this.channel.sendToQueue(
                 rabbitMQConfig.queues.leaveRequests,
                 Buffer.from(JSON.stringify(message)),
                 { persistent: true }
-            )
+            );
         } catch (error) {
             console.error("Failed to publish message", error);
             throw new AppError('Failed to publish message', 500);
@@ -75,8 +75,11 @@ export class QueueService {
 
                 try {
                     const message: LeaveRequestMessage = JSON.parse(msg.content.toString());
+                    message.startDate = new Date(message.startDate);
+                    message.endDate = new Date(message.endDate);
                     await callback(message);
                     this.channel.ack(msg)
+                    console.log("Message processed and acknowledged:", message);
                 } catch (error) {
                     console.log("Error Porcessing message:", error);
                     // Check retry count

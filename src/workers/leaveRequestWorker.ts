@@ -15,7 +15,7 @@ export class LeaveRequestWorker {
         console.log('Starting leave Request Worker ...');
 
         await this.queueService.consumeLeaveRequests(async (message) => {
-            console.log('Processing leav request: ', message.id);
+            console.log('Processing leave request: ', message);
             await this.leaveRequestService.processLeaveRequest(message)
         });
         console.log('Leave Request Worker started and listening for messages');

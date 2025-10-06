@@ -58,8 +58,16 @@ export class LeaveRequestServices {
         retryCount?: number;
     }){
         try {
-            // Calculate leave durations in days
-            const durationMs = leaveRequestData.endDate.getTime() - leaveRequestData.startDate.getTime();
+            // Convert to Date objects (in case they are strings)
+            const startDate = new Date(leaveRequestData.startDate);
+            const endDate = new Date(leaveRequestData.endDate);
+
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                throw new Error('Invalid date values received in leaveRequestData');
+            }
+
+            // Calculate leave duration in days
+            const durationMs = endDate.getTime() - startDate.getTime();
             const durationDays = Math.ceil(durationMs / (1000 * 60 * 60 * 24)) + 1;
             let status: 'APPROVED' | 'PENDING_APPROVAL' = 'PENDING_APPROVAL';
             if(durationDays <= 2){

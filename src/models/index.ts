@@ -21,9 +21,9 @@ interface DepartmentAttributes {
 interface DepartmentCreationAttributes extends Optional<DepartmentAttributes, 'id'> {}
 
 export class Department extends Model<DepartmentAttributes, DepartmentCreationAttributes>{
-    public id!: string;
-    public name!: string;
-    public createdAt!: Date;
+    declare id: string;
+    declare name: string;
+    declare createdAt: Date;
 }
 
 Department.init(
@@ -62,11 +62,11 @@ interface EmployeeAttributes {
 interface EmployeeCreationAttributes extends Optional<EmployeeAttributes, 'id'> {}
 
 export class Employee extends Model<EmployeeAttributes, EmployeeCreationAttributes>{
-    public id!: string;
-    public name!: string;
-    public email!: string;
-    public departmentId?: string;
-    public createdAt!: Date;
+    declare id: string;
+    declare name: string;
+    declare email: string;
+    declare departmentId?: string;
+    declare createdAt: Date;
 }
 
 Employee.init(
@@ -128,15 +128,15 @@ interface LeaveRequestAttributes {
 interface LeaveRequestCreationAttributes extends Optional<LeaveRequestAttributes, 'id' | 'status'> {}
 
 export class LeaveRequest extends Model<LeaveRequestAttributes, LeaveRequestCreationAttributes>{
-  public id!: string;
-  public employeeId!: string;
-  public startDate!: Date;
-  public endDate!: Date;
-  public status!: LeaveStatus;
-  public createdAt!: Date;
-  public updatedAt!: Date;
-  public processedAt?: Date;
-  public idempotencyKey?: string | null;
+  declare id: string;
+  declare employeeId: string;
+  declare startDate: Date;
+  declare endDate: Date;
+  declare status: LeaveStatus;
+  declare createdAt: Date;
+  declare updatedAt: Date;
+  declare processedAt?: Date;
+  declare idempotencyKey?: string | null;
 } 
 
 LeaveRequest.init(

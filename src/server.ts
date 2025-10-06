@@ -8,7 +8,7 @@ async function startServer() {
     const app = new App();
     await app.start(PORT);
 
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'development') {
       const worker = new LeaveRequestWorker();
       await worker.start();
     }
