@@ -27,7 +27,7 @@ export const databaseConfig: DatabaseConfig = {
     password: process.env.DB_PASSWORD as string,
     database: process.env.DB_NAME as string,
     dialect: 'mysql',
-    logging: process.env.NODE_ENV === 'development',
+    logging: process.env.NODE_ENV === 'production',
     pool: {
         max: 20,
         min: 5,

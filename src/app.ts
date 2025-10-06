@@ -40,20 +40,34 @@ export class App {
     });
   }
 
-  async initializeDatabase(): Promise<void> {
-    try {
-      await sequelize.authenticate();
-      console.log('Database connection established successfully.');
+  // async initializeDatabase(): Promise<void> {
+  //   try {
+  //     await sequelize.authenticate();
+  //     console.log('Database connection established successfully.');
 
-      if (process.env.NODE_ENV === 'development') {
-        await sequelize.sync({ force: false });
-        console.log('Database synced');
+  //     if (process.env.NODE_ENV === 'development') {
+  //     await sequelize.sync({ alter: true });
+  //     console.log('Database synced in development mode');
+  //     } else if (process.env.NODE_ENV === 'production') {
+  //       await sequelize.sync({ force: false });
+  //       console.log('Database synced in production mode');
+  //     }
+  //   } catch (error) {
+  //     console.error('Unable to connect to the database:', error);
+  //     process.exit(1);
+  //   }
+  // }
+  
+      async initializeDatabase(): Promise<void> {
+        try {
+          await sequelize.authenticate();
+          console.log('Database connection established successfully.');
+          // Don't sync - tables are created by schema.sql
+        } catch (error) {
+          console.error('Unable to connect to the database:', error);
+          process.exit(1);
+        }
       }
-    } catch (error) {
-      console.error('Unable to connect to the database:', error);
-      process.exit(1);
-    }
-  }
 
   async start(port: number = 3000): Promise<void> {
     await this.initializeDatabase();

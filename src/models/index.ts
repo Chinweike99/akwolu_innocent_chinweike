@@ -90,7 +90,7 @@ Employee.init(
         },
         departmentId: {
             type: DataTypes.UUID,
-            allowNull: true,
+            allowNull: false,
             references: {
                 model: Department,
                 key: 'id',
@@ -197,7 +197,7 @@ LeaveRequest.init(
 
 // Define associations
 Department.hasMany(Employee, {foreignKey: 'departmentId', as: 'employees'});
-Employee.belongsTo(Department, {foreignKey: 'departmentId', as: 'department'});
+Employee.belongsTo(Department, {foreignKey: 'departmentId', as: 'department', onDelete: 'RESTRICT'});
 
 Employee.hasMany(LeaveRequest, {foreignKey: 'employeeId', as: 'leaveRequests'});
 LeaveRequest.belongsTo(Employee, {foreignKey: 'employeeId', as: 'employee'});
