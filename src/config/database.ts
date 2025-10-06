@@ -1,4 +1,4 @@
-import { Dialect } from "sequelize";
+import { Dialect, Options } from "sequelize";
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -10,13 +10,16 @@ export interface DatabaseConfig {
     password: string;
     database: string;
     dialect: Dialect;
-    logging: boolean;
+    logging: boolean | ((sql: string, timing?: number) => void);
     pool: {
         max: number;
         min: number;
         acquire: number;
         idle: number;
-    }
+    };
+    retry: {
+        max: number;
+    };
 }
 
 
@@ -27,11 +30,24 @@ export const databaseConfig: DatabaseConfig = {
     password: process.env.DB_PASSWORD as string,
     database: process.env.DB_NAME as string,
     dialect: 'mysql',
-    logging: process.env.NODE_ENV === 'production',
+    logging: process.env.NODE_ENV === 'development' ? console.log : false,
     pool: {
         max: 20,
         min: 5,
         acquire: 60000,
         idle: 10000,
     },
+    retry :{
+        max: 3
+    }
+};
+
+// Sequelize configuration for different environments
+export const sequelizeConfig: Options = {
+  ...databaseConfig,
+  define: {
+    timestamps: true,
+    underscored: true,
+  },
+  timezone: '+00:00', // UTC
 };

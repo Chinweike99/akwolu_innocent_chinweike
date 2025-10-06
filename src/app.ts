@@ -1,9 +1,10 @@
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
-import { sequelize } from './models';
+import { sequelize, syncDatabase } from './models';
 import { generalRateLimiter } from './middlewares/rateLimit';
 import router from './routes/routes';
+import { DatabaseConnection } from './config/database-connection';
 
 export class App {
   public app: express.Application;
@@ -39,30 +40,14 @@ export class App {
       });
     });
   }
-
-  // async initializeDatabase(): Promise<void> {
-  //   try {
-  //     await sequelize.authenticate();
-  //     console.log('Database connection established successfully.');
-
-  //     if (process.env.NODE_ENV === 'development') {
-  //     await sequelize.sync({ alter: true });
-  //     console.log('Database synced in development mode');
-  //     } else if (process.env.NODE_ENV === 'production') {
-  //       await sequelize.sync({ force: false });
-  //       console.log('Database synced in production mode');
-  //     }
-  //   } catch (error) {
-  //     console.error('Unable to connect to the database:', error);
-  //     process.exit(1);
-  //   }
-  // }
-  
       async initializeDatabase(): Promise<void> {
         try {
-          await sequelize.authenticate();
-          console.log('Database connection established successfully.');
-          // Don't sync - tables are created by schema.sql
+          await DatabaseConnection.testConnection();
+          // Sync database in development (not in production)
+          if (process.env.NODE_ENV === 'development') {
+            await syncDatabase(false); 
+          }
+          console.log('Database initialization completed');
         } catch (error) {
           console.error('Unable to connect to the database:', error);
           process.exit(1);
@@ -73,6 +58,8 @@ export class App {
     await this.initializeDatabase();
     this.app.listen(port, () => {
       console.log(`Server running on port ${port}`);
+        console.log(`Environment: ${process.env.NODE_ENV}`);
+        console.log(`Health check: http://localhost:${port}/health`);
     });
   }
 }

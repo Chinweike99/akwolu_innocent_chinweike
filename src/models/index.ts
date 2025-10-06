@@ -10,7 +10,6 @@ export const sequelize = new Sequelize(
     databaseConfig
 );
 
-
 // Department Model
 interface DepartmentAttributes {
     id: string;
@@ -202,3 +201,30 @@ Employee.belongsTo(Department, {foreignKey: 'departmentId', as: 'department', on
 Employee.hasMany(LeaveRequest, {foreignKey: 'employeeId', as: 'leaveRequests'});
 LeaveRequest.belongsTo(Employee, {foreignKey: 'employeeId', as: 'employee'});
 
+// Export initialized models
+export const models = {
+  Department,
+  Employee,
+  LeaveRequest,
+};
+
+// Sync function for development
+export const syncDatabase = async (force: boolean = false) => {
+  try {
+    await sequelize.sync({ force });
+    console.log('Database synchronized successfully');
+  } catch (error) {
+    console.error(' Database synchronization failed:', error);
+    throw error;
+  }
+};
+
+// Initialize associations
+export const initializeAssociations = () => {
+  Department.hasMany(Employee, { foreignKey: 'departmentId', as: 'employees' });
+  Employee.belongsTo(Department, { foreignKey: 'departmentId', as: 'department' });
+  Employee.hasMany(LeaveRequest, { foreignKey: 'employeeId', as: 'leaveRequests' });
+  LeaveRequest.belongsTo(Employee, { foreignKey: 'employeeId', as: 'employee' });
+  
+  console.log('Database associations initialized');
+};
