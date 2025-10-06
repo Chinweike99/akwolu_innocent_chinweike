@@ -122,7 +122,7 @@ interface LeaveRequestAttributes {
     createdAt?: Date;
     updatedAt?: Date;
     processedAt?: Date;
-    idempotencyKey: string;
+    idempotencyKey?: string | null;
 }
 
 interface LeaveRequestCreationAttributes extends Optional<LeaveRequestAttributes, 'id' | 'status'> {}
@@ -136,7 +136,7 @@ export class LeaveRequest extends Model<LeaveRequestAttributes, LeaveRequestCrea
   public createdAt!: Date;
   public updatedAt!: Date;
   public processedAt?: Date;
-  public idempotencyKey?: string;
+  public idempotencyKey?: string | null;
 } 
 
 LeaveRequest.init(
@@ -181,7 +181,7 @@ LeaveRequest.init(
         },
         idempotencyKey: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
             unique: true,
         }
     },

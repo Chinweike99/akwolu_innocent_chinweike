@@ -42,7 +42,8 @@ export abstract class BaseController {
 
     protected handleValidationError(res: Response, error: ZodError): Response {
         const details = error.errors.map(err => ({
-            field: err.path.join('.')
+            // field: err.path.join('.') || 'general',
+            message: err.message
         }));
 
         return this.sendError (

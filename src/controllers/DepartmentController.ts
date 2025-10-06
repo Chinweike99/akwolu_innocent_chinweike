@@ -34,7 +34,8 @@ export class DepartmentController extends BaseController {
     getDepartmentEmplyees = async (req: Request, res: Response): Promise<Response> => {
         try {
             const { id } = req.params;
-            const pagination = paginationSchema.parse(id);
+            const pagination = paginationSchema.parse(req.query);
+            
             const response = await this.departmentService.getDepartmentEmployees(id, pagination.page, pagination.limit);
             return this.sendSuccess(res, response.employees, {
                 page: pagination.page,

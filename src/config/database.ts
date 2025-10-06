@@ -1,4 +1,7 @@
 import { Dialect } from "sequelize";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export interface DatabaseConfig {
     host: string;

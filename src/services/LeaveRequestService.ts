@@ -31,14 +31,10 @@ export class LeaveRequestServices {
             throw new AppError("Employee not found", 404);
         }
 
-        if(input.startDate >= input.endDate){
-            throw new AppError("Start date must be before end date", 400);
-        }
-
         const leaveRequestData = await this.leaveRequestRepository.create({
             ...input,
             status: 'PENDING' as const,
-            idempotencykey: input.idempotencyKey || uuidv4(),
+            idempotencyKey: input.idempotencyKey || uuidv4(),
         });
 
         // Publish to queue for async processing
@@ -49,7 +45,7 @@ export class LeaveRequestServices {
             endDate: leaveRequestData.endDate,
             idempotencyKey: leaveRequestData.idempotencyKey!,
         })
-
+        
         return leaveRequestData;
     }
 

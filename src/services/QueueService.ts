@@ -23,6 +23,7 @@ export class QueueService {
             this.connection = await amqp.connect(rabbitMQConfig.url);
             this.channel = await this.connection.createChannel();
 
+            
             // Assert main queue with dead-letter exchang
             await this.channel.assertQueue(rabbitMQConfig.queues.leaveRequests, {
                 durable: true,

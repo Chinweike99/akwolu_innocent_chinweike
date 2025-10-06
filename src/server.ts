@@ -1,35 +1,31 @@
-import express, { Request, Response } from 'express';
+import { App } from './app';
+import { LeaveRequestWorker } from './workers/leaveRequestWorker';
 
-const app = express();
-app.use(express.json());
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
-
-
-app.get('/', (req: Request, res: Response) => {
-    res.send('Hello, Akwolu Inncent Chinweike!');
-});
-
-interface DataRequestBody {
-    name: string;
-    age: number;
-}
-
-app.post('/data', (req: Request<{}, {}, DataRequestBody>, res: Response) => {
+async function startServer() {
   try {
-    const { name, age } = req.body;
+    const app = new App();
+    await app.start(PORT);
 
-    res.json({
-      name,
-      age,
-      message: `Received data for ${name}, age ${age}`,
+    if (process.env.NODE_ENV === 'production') {
+      const worker = new LeaveRequestWorker();
+      await worker.start();
+    }
+
+    process.on('SIGTERM', () => {
+      console.log('SIGTERM received, shutting down gracefully');
+      process.exit(0);
+    });
+
+    process.on('SIGINT', () => {
+      console.log('SIGINT received, shutting down gracefully');
+      process.exit(0);
     });
   } catch (error) {
-    console.error('Error processing request:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Failed to start server:', error);
+    process.exit(1);
   }
-});
+}
 
-
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-})
+startServer();
