@@ -1,8 +1,6 @@
 # Workforce Management System - Backend Engineering Assessment
 - A scalable, production-ready Node.js backend system designed to handle workforce management for companies scaling from 100 to 10,000+ employees. This solution addresses high traffic, queue backlogs, maintainability, and clear separation of responsibilities through clean architecture and scalable design patterns.
 
-### It is important to note that docker isn't fully implemented with the code yet, Still having "docker logs workforce_app" return error, and successful postman request data isn't sent to the mysql on Docker
-
 ## Note on Docker
 ### Docker integration is partially implemented.
     - docker logs workforce_app currently returns an error related to build output.
